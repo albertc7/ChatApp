@@ -15,6 +15,9 @@ open class Question(
         return listOf("")
     }
 
+    open fun getAlternatives() : List<String> {
+        return listOf("")
+    }
 }
 
 class TFQuestion(content: String) : Question(
@@ -27,6 +30,12 @@ class TFQuestion(content: String) : Question(
             "2. False"
         )
     }
+    override fun getAlternatives(): List<String> {
+        return listOf(
+            "TRUE",
+            "FALSE"
+        )
+    }
 }
 
 class MCQuestion(content: String)  : Question(
@@ -35,10 +44,18 @@ class MCQuestion(content: String)  : Question(
 ){
     override fun getAnswers(): List<String> {
         return listOf(
-        "1. Statement a",
-        "2. Statement b",
-        "3. Statement c",
-        "4. Statement d"
+        "A. Statement a",
+        "B. Statement b",
+        "C. Statement c",
+        "D. Statement d"
+        )
+    }
+    override fun getAlternatives(): List<String> {
+        return listOf(
+            "A",
+            "B",
+            "C",
+            "D",
         )
     }
 }
@@ -49,10 +66,19 @@ class MAQuestion(content: String)  : Question(
 ){
     override fun getAnswers(): List<String> {
         return listOf(
-            "1. Statement a",
-            "2. Statement b",
-            "3. Statement c",
-            "4. Statement d"
+            "A. Statement a",
+            "B. Statement b",
+            "C. Statement c",
+            "D. Statement d"
+        )
+    }
+
+    override fun getAlternatives(): List<String> {
+        return listOf(
+            "A",
+            "B",
+            "C",
+            "D",
         )
     }
 }

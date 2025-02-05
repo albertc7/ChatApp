@@ -1,4 +1,6 @@
 package com.example.chatapp.model
 
-class Answer {
+class Answer(
+    val content: String = ""
+) {
 }

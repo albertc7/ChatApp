@@ -31,13 +31,13 @@ class AlternativeMessage(message : @Composable () -> Unit) : ChatMessage(
     message = message
 )
 
-class AnswerMessage(message :  @Composable () -> Unit) : ChatMessage(
+class AnswerMessage(answer: Answer) : ChatMessage(
     messageType = ChatMessageType.ANSWER,
     isFromMe = true,
-    message = message
+    message = @Composable { Text(answer.content) }
 ){}
 
-fun SnapshotStateList<ChatMessage>.addQuestion(questionMessage: QuestionMessage){
+fun MutableList<ChatMessage>.addQuestion(questionMessage: QuestionMessage){
     this.add(questionMessage)
     val lastMessage = this.last()
     if(lastMessage.messageType == ChatMessageType.QUESTION &&
