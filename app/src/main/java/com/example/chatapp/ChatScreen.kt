@@ -2,7 +2,6 @@ package com.example.chatapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,9 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.example.chatapp.model.AlternativeMessage
 import com.example.chatapp.model.ChatMessage
-import com.example.chatapp.model.ChatMessageType
 import com.example.chatapp.model.MCQuestion
 import com.example.chatapp.model.QuestionMessage
 import com.example.chatapp.model.TFQuestion

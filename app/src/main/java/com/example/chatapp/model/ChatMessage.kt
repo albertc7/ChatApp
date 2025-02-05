@@ -52,20 +52,3 @@ fun SnapshotStateList<ChatMessage>.addQuestion(questionMessage: QuestionMessage)
         this.add(AlternativeMessage(altMessage))
     }
 }
-
-
-
-//init(question: Question) : this() {
-//    isFromMe = false
-//    message = {
-//        Column(
-//        ){
-//            Text(question.content)
-//            question.getAnswers().forEach{ answer ->
-//                Button(onClick = {/*TODO*/}) {
-//                    Text(answer)
-//                }
-//            }
-//        }
-//    }
-//}
