@@ -16,7 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.example.chatapp.model.ChatViewModel
+import com.example.chatapp.model.MCQuestion
+import com.example.chatapp.model.Quiz
+import com.example.chatapp.model.TFQuestion
 import com.example.chatapp.ui.theme.AppTheme
+
+val exampleQuiz = Quiz(
+    name = "Example Quiz",
+    questions = listOf(
+        TFQuestion("True or False 1"),
+        MCQuestion("Multiple Choice 1"),
+    )
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,8 +42,8 @@ class MainActivity : ComponentActivity() {
                     .statusBarsPadding()
                     .navigationBarsPadding()
                     .fillMaxSize()) { innerPadding ->
-                    ChatScreen(
-                        quiz = quiz,
+                    ChatScreen2(
+                        ChatViewModel(exampleQuiz),
                         contentPadding = innerPadding
                     )
                 }
@@ -54,25 +66,17 @@ fun TopAppBar(modifier: Modifier = Modifier) {
     )
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun AppPreview() {
     AppTheme {
         Scaffold(
             topBar = { TopAppBar() },
             modifier = Modifier
                 .statusBarsPadding()
                 .fillMaxSize()) { innerPadding ->
-            ChatScreen(
-                quiz = quiz,
+            ChatScreen2(ChatViewModel(exampleQuiz),
                 contentPadding = innerPadding
             )
         }

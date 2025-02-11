@@ -20,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,13 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.chatapp.model.Answer
-import com.example.chatapp.model.AnswerMessage
 import com.example.chatapp.model.ChatMessage
-import com.example.chatapp.model.MCQuestion
-import com.example.chatapp.model.Question
-import com.example.chatapp.model.QuestionMessage
-import com.example.chatapp.model.TFQuestion
-import com.example.chatapp.model.addQuestion
+import com.example.chatapp.model.ChatViewModel
+import com.example.chatapp.model.Quiz
+import com.example.chatapp.model.Report
+import com.example.chatapp.model.User
 
 
 @Composable
@@ -68,9 +68,148 @@ fun ChatItem(message :  ChatMessage, modifier: Modifier = Modifier){
     }
 }
 
+//@Composable
+//fun ChatScreen(
+//    quiz: Quiz,
+//    modifier: Modifier = Modifier,
+//    contentPadding: PaddingValues = PaddingValues(0.dp)
+//){
+//    //Setting up Chat state variables
+//    val listState = rememberLazyListState()
+//    val messageList = remember  { mutableListOf<ChatMessage>() }
+//    val questionIterator = remember { mutableIntStateOf(0) }
+//    val answers = remember { mutableStateListOf<Answer>() }
+//    val openAlertDialog = remember { mutableStateOf(false) }
+//
+//    if(openAlertDialog.value){
+//        QuizEndDialog(
+//            onDismissRequest = { openAlertDialog.value = false },
+//            onConfirmation = {
+//                //Reset Test
+//                openAlertDialog.value = false
+//                messageList.clear()
+//                questionIterator.intValue = 0
+//            }
+//        )
+//    }
+//
+//    if(questionIterator.intValue != quiz.size){
+//        messageList.addQuestion(QuestionMessage(quiz.questions[questionIterator.intValue]))
+//    }
+//    else {
+//        val report = Report(quizId =  quiz.id, score = 80 )
+//        User.addReport(report)
+//        openAlertDialog.value = true
+//    }
+//
+//    //Applying Auto-Scroll to last message queued
+//    LaunchedEffect(messageList.size) {
+//        if (messageList.isNotEmpty()) {
+//            // Scroll to the last item with animation
+//            listState.animateScrollToItem(messageList.size - 1)
+//        }
+//    }
+//
+//    //Setting relative layout
+//    ConstraintLayout (modifier = modifier.fillMaxSize()) {
+//        val (messages, addMsgButton) = createRefs()
+//
+//        //Scrollable Chat
+//        LazyColumn(
+//            state = listState,
+//            contentPadding = contentPadding,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(horizontal = 8.dp)
+//                .constrainAs(messages) {
+//                    top.linkTo(parent.top)
+//                    bottom.linkTo(addMsgButton.top)
+//                    start.linkTo(parent.start)
+//                    end.linkTo(parent.end)
+//                    height = Dimension.fillToConstraints
+//                }
+//        ) {
+//            items(messageList) {
+//                message -> run {
+//                    ChatItem(
+//                        message = message,
+//                        modifier = Modifier
+//                            .padding(vertical = 4.dp)
+//                            .fillParentMaxWidth()
+//                    )
+//                }
+//            }
+//        }
+//
+//        //Actions Buttons on Bottom of Screen
+//        Row(modifier = Modifier
+//            .constrainAs(addMsgButton) {
+//                bottom.linkTo(parent.bottom)
+//                start.linkTo(parent.start)
+//                end.linkTo(parent.end)
+//            }
+//            .fillMaxWidth(0.9F)
+//        ) {
+//            if (questionIterator.intValue != quiz.size) {
+//                val currentQuestion = quiz.questions[questionIterator.intValue]
+//                currentQuestion.getAlternatives().forEach {
+//                    Button(
+//                        onClick = {
+//                            val answer =
+//                                Answer("Response $it Submitted at question ${questionIterator.intValue + 1}")
+//                            messageList.add(AnswerMessage(answer))
+//                            answers.add(answer)
+//                            questionIterator.intValue++
+//                        },
+//                        modifier = Modifier.padding(horizontal = 4.dp).weight(1f)
+//                    ) {
+//                        Text(it)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
+@Preview
 @Composable
-fun ChatScreen(
-    quiz: List<Question>,
+fun QuizEndDialog(
+    onDismissRequest: () -> Unit ={},
+    onConfirmation: () -> Unit ={},
+) {
+    AlertDialog(
+        icon = { Icons.Default.Check },
+        title = { Text(text = "Nice!") },
+        text = {
+            Text(text = "You just finished your quiz. Would you like to give it another try?")
+        },
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirmation() }
+            ) {
+                Text("Yes")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = { onDismissRequest() }
+            ) {
+                Text("No")
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+fun ChatPreview(){
+    ChatScreen2(ChatViewModel(exampleQuiz))
+}
+
+@Composable
+fun ChatScreen2(
+    chatViewModel: ChatViewModel,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ){
@@ -80,6 +219,8 @@ fun ChatScreen(
     val questionIterator = remember { mutableIntStateOf(0) }
     val answers = remember { mutableStateListOf<Answer>() }
     val openAlertDialog = remember { mutableStateOf(false) }
+
+    val chatUiState by chatViewModel.uiState.collectAsState()
 
     if(openAlertDialog.value){
         QuizEndDialog(
@@ -93,18 +234,12 @@ fun ChatScreen(
         )
     }
 
-    if(questionIterator.intValue != quiz.size){
-        messageList.addQuestion(QuestionMessage(quiz[questionIterator.intValue]))
-    }
-    else {
-        openAlertDialog.value = true
-    }
 
     //Applying Auto-Scroll to last message queued
-    LaunchedEffect(messageList.size) {
-        if (messageList.isNotEmpty()) {
+    LaunchedEffect(chatUiState.messageList.size) {
+        if (chatUiState.messageList.isNotEmpty()) {
             // Scroll to the last item with animation
-            listState.animateScrollToItem(messageList.size - 1)
+            listState.animateScrollToItem(chatUiState.messageList.size - 1)
         }
     }
 
@@ -127,15 +262,15 @@ fun ChatScreen(
                     height = Dimension.fillToConstraints
                 }
         ) {
-            items(messageList) {
-                message -> run {
-                    ChatItem(
-                        message = message,
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .fillParentMaxWidth()
-                    )
-                }
+            items(chatUiState.messageList) {
+                    message -> run {
+                ChatItem(
+                    message = message,
+                    modifier = Modifier
+                        .padding(vertical = 4.dp)
+                        .fillParentMaxWidth()
+                )
+            }
             }
         }
 
@@ -148,80 +283,26 @@ fun ChatScreen(
             }
             .fillMaxWidth(0.9F)
         ) {
-            if (questionIterator.intValue != quiz.size) {
-                val currentQuestion = quiz[questionIterator.intValue]
-                currentQuestion.getAlternatives().forEach {
-                    Button(
-                        onClick = {
-                            val answer =
-                                Answer("Response $it Submitted at question ${questionIterator.intValue + 1}")
-                            messageList.add(AnswerMessage(answer))
-                            answers.add(answer)
-                            questionIterator.intValue++
-                        },
-                        modifier = Modifier.padding(horizontal = 4.dp).weight(1f)
-                    ) {
-                        Text(it)
-                    }
-                }
+//            if (questionIterator.intValue != quiz.size) {
+//                val currentQuestion = quiz.questions[questionIterator.intValue]
+//                currentQuestion.getAlternatives().forEach {
+//                    Button(
+//                        onClick = {
+//                            val answer =
+//                                Answer("Response $it Submitted at question ${questionIterator.intValue + 1}")
+//                            messageList.add(AnswerMessage(answer))
+//                            answers.add(answer)
+//                            questionIterator.intValue++
+//                        },
+//                        modifier = Modifier.padding(horizontal = 4.dp).weight(1f)
+//                    ) {
+//                        Text(it)
+//                    }
+//                }
+//            }
+            Button(onClick = {chatViewModel.goToNext()}) {
+                Text("test!")
             }
         }
     }
-
-}
-@Preview
-@Composable
-fun QuizEndDialog(
-    onDismissRequest: () -> Unit ={},
-    onConfirmation: () -> Unit ={},
-) {
-    AlertDialog(
-        icon = {
-            Icons.Default.Check
-        },
-        title = {
-            Text(text = "Nice!")
-        },
-        text = {
-            Text(text = "You just finished your quiz. Would you like to give it another try?")
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Yes")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("No")
-            }
-        }
-    )
-}
-
-val quiz = listOf(
-    TFQuestion("True or False 1"),
-    MCQuestion("Multiple Choice 1"),
-//    TFQuestion("True or False 2"),
-//    MCQuestion("Multiple Choice 2"),
-//    TFQuestion("True or False 3"),
-//    MCQuestion("Multiple Choice 3"),
-//    TFQuestion("True or False 4"),
-//    MCQuestion("Multiple Choice 4"),
-)
-
-@Preview
-@Composable
-fun ChatPreview(){
-    ChatScreen(quiz)
 }

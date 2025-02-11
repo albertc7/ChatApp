@@ -82,9 +82,3 @@ class MAQuestion(content: String)  : Question(
         )
     }
 }
-
-val exampleQuestions = mutableListOf(
-    TFQuestion("True Or False Question Example"),
-    MCQuestion("Multiple Question Question Example"),
-    MAQuestion("Multiple Answers Question Example")
-)
