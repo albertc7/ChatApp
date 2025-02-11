@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -68,108 +69,7 @@ fun ChatItem(message :  ChatMessage, modifier: Modifier = Modifier){
     }
 }
 
-//@Composable
-//fun ChatScreen(
-//    quiz: Quiz,
-//    modifier: Modifier = Modifier,
-//    contentPadding: PaddingValues = PaddingValues(0.dp)
-//){
-//    //Setting up Chat state variables
-//    val listState = rememberLazyListState()
-//    val messageList = remember  { mutableListOf<ChatMessage>() }
-//    val questionIterator = remember { mutableIntStateOf(0) }
-//    val answers = remember { mutableStateListOf<Answer>() }
-//    val openAlertDialog = remember { mutableStateOf(false) }
-//
-//    if(openAlertDialog.value){
-//        QuizEndDialog(
-//            onDismissRequest = { openAlertDialog.value = false },
-//            onConfirmation = {
-//                //Reset Test
-//                openAlertDialog.value = false
-//                messageList.clear()
-//                questionIterator.intValue = 0
-//            }
-//        )
-//    }
-//
-//    if(questionIterator.intValue != quiz.size){
-//        messageList.addQuestion(QuestionMessage(quiz.questions[questionIterator.intValue]))
-//    }
-//    else {
-//        val report = Report(quizId =  quiz.id, score = 80 )
-//        User.addReport(report)
-//        openAlertDialog.value = true
-//    }
-//
-//    //Applying Auto-Scroll to last message queued
-//    LaunchedEffect(messageList.size) {
-//        if (messageList.isNotEmpty()) {
-//            // Scroll to the last item with animation
-//            listState.animateScrollToItem(messageList.size - 1)
-//        }
-//    }
-//
-//    //Setting relative layout
-//    ConstraintLayout (modifier = modifier.fillMaxSize()) {
-//        val (messages, addMsgButton) = createRefs()
-//
-//        //Scrollable Chat
-//        LazyColumn(
-//            state = listState,
-//            contentPadding = contentPadding,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(horizontal = 8.dp)
-//                .constrainAs(messages) {
-//                    top.linkTo(parent.top)
-//                    bottom.linkTo(addMsgButton.top)
-//                    start.linkTo(parent.start)
-//                    end.linkTo(parent.end)
-//                    height = Dimension.fillToConstraints
-//                }
-//        ) {
-//            items(messageList) {
-//                message -> run {
-//                    ChatItem(
-//                        message = message,
-//                        modifier = Modifier
-//                            .padding(vertical = 4.dp)
-//                            .fillParentMaxWidth()
-//                    )
-//                }
-//            }
-//        }
-//
-//        //Actions Buttons on Bottom of Screen
-//        Row(modifier = Modifier
-//            .constrainAs(addMsgButton) {
-//                bottom.linkTo(parent.bottom)
-//                start.linkTo(parent.start)
-//                end.linkTo(parent.end)
-//            }
-//            .fillMaxWidth(0.9F)
-//        ) {
-//            if (questionIterator.intValue != quiz.size) {
-//                val currentQuestion = quiz.questions[questionIterator.intValue]
-//                currentQuestion.getAlternatives().forEach {
-//                    Button(
-//                        onClick = {
-//                            val answer =
-//                                Answer("Response $it Submitted at question ${questionIterator.intValue + 1}")
-//                            messageList.add(AnswerMessage(answer))
-//                            answers.add(answer)
-//                            questionIterator.intValue++
-//                        },
-//                        modifier = Modifier.padding(horizontal = 4.dp).weight(1f)
-//                    ) {
-//                        Text(it)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
+
 
 @Preview
 @Composable
@@ -215,25 +115,15 @@ fun ChatScreen2(
 ){
     //Setting up Chat state variables
     val listState = rememberLazyListState()
-    val messageList = remember  { mutableListOf<ChatMessage>() }
-    val questionIterator = remember { mutableIntStateOf(0) }
-    val answers = remember { mutableStateListOf<Answer>() }
-    val openAlertDialog = remember { mutableStateOf(false) }
 
     val chatUiState by chatViewModel.uiState.collectAsState()
 
-    if(openAlertDialog.value){
+    if(chatUiState.endOfChat){
         QuizEndDialog(
-            onDismissRequest = { openAlertDialog.value = false },
-            onConfirmation = {
-                //Reset Test
-                openAlertDialog.value = false
-                messageList.clear()
-                questionIterator.intValue = 0
-            }
+            onDismissRequest = { },
+            onConfirmation = { chatViewModel.restart() }
         )
     }
-
 
     //Applying Auto-Scroll to last message queued
     LaunchedEffect(chatUiState.messageList.size) {
@@ -243,65 +133,54 @@ fun ChatScreen2(
         }
     }
 
-    //Setting relative layout
-    ConstraintLayout (modifier = modifier.fillMaxSize()) {
-        val (messages, addMsgButton) = createRefs()
+    Surface(color = MaterialTheme.colorScheme.background) {
+        //Setting relative layout
+        ConstraintLayout (modifier = modifier.fillMaxSize()) {
+            val (messages, addMsgButton) = createRefs()
 
-        //Scrollable Chat
-        LazyColumn(
-            state = listState,
-            contentPadding = contentPadding,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .constrainAs(messages) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(addMsgButton.top)
+            //Scrollable Chat
+            LazyColumn(
+                state = listState,
+                contentPadding = contentPadding,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .constrainAs(messages) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(addMsgButton.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        height = Dimension.fillToConstraints
+                    }
+            ) {
+                items(chatUiState.messageList) {
+                        message -> run {
+                    ChatItem(
+                        message = message,
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .fillParentMaxWidth()
+                    )
+                }
+                }
+            }
+
+            //Actions Buttons on Bottom of Screen
+            Row(modifier = Modifier
+                .constrainAs(addMsgButton) {
+                    bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    height = Dimension.fillToConstraints
                 }
-        ) {
-            items(chatUiState.messageList) {
-                    message -> run {
-                ChatItem(
-                    message = message,
-                    modifier = Modifier
-                        .padding(vertical = 4.dp)
-                        .fillParentMaxWidth()
-                )
-            }
-            }
-        }
+                .fillMaxWidth(0.9F)
+            ) {
+                chatUiState.currentQuestionsAlternatives.forEach {
+                    Button(
+                        onClick = { chatViewModel.submitAnswer(it) },
+                        modifier = Modifier.padding(horizontal = 4.dp).weight(1f)
+                    ) { Text(it) }
+                }
 
-        //Actions Buttons on Bottom of Screen
-        Row(modifier = Modifier
-            .constrainAs(addMsgButton) {
-                bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
-            .fillMaxWidth(0.9F)
-        ) {
-//            if (questionIterator.intValue != quiz.size) {
-//                val currentQuestion = quiz.questions[questionIterator.intValue]
-//                currentQuestion.getAlternatives().forEach {
-//                    Button(
-//                        onClick = {
-//                            val answer =
-//                                Answer("Response $it Submitted at question ${questionIterator.intValue + 1}")
-//                            messageList.add(AnswerMessage(answer))
-//                            answers.add(answer)
-//                            questionIterator.intValue++
-//                        },
-//                        modifier = Modifier.padding(horizontal = 4.dp).weight(1f)
-//                    ) {
-//                        Text(it)
-//                    }
-//                }
-//            }
-            Button(onClick = {chatViewModel.goToNext()}) {
-                Text("test!")
             }
         }
     }

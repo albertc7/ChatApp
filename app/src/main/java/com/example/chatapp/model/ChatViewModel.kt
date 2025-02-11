@@ -23,24 +23,40 @@ class ChatViewModel(val quiz : Quiz): ViewModel() {
 
     init{
         addCurrentQuestionToMessages()
-
     }
 
     private fun addCurrentQuestionToMessages(){
-//            currentQuestion = quiz.questions[uiState.value.currentQuestionIndex]
         messages.add(ChatMessage(false){ Text(currentQuestion.content) })
         messages.add(ChatMessage(false, getAlternativesForCurrentQuestion()))
         _uiState.update { currentState ->
-            currentState.copy(messageList = messages, currentQuestionIndex = currentQuestionIndex)
+            currentState.copy(
+                messageList = messages,
+                currentQuestionIndex = currentQuestionIndex,
+                currentQuestionsAlternatives = currentQuestion.getAlternatives()
+            )
         }
     }
 
-    fun goToNext(){
-        currentQuestionIndex++
-        currentQuestion = quiz.questions[currentQuestionIndex]
+    fun restart(){
+        currentQuestion = quiz.questions.first()
+        answers.clear()
+        messages.clear()
+        currentQuestionIndex = 0
+        _uiState.value = ChatUiState()
         addCurrentQuestionToMessages()
     }
 
+    fun goToNext(){
+        if(currentQuestionIndex == quiz.questions.size - 1){
+            _uiState.update { currentState ->
+                currentState.copy(endOfChat = true)
+            }
+        } else {
+            currentQuestionIndex++
+            currentQuestion = quiz.questions[currentQuestionIndex]
+            addCurrentQuestionToMessages()
+        }
+    }
 
     private fun getAlternativesForCurrentQuestion() : @Composable () -> Unit {
         val alternativesMessage = @Composable {
@@ -52,4 +68,17 @@ class ChatViewModel(val quiz : Quiz): ViewModel() {
         }
         return alternativesMessage
     }
+
+    fun submitAnswer(content: String){
+        answers.add(Answer(content, currentQuestion))
+        val answerMessage = "Response $content Submitted at question ${currentQuestionIndex + 1}"
+        messages.add(ChatMessage(true){ Text(answerMessage) })
+        _uiState.update { currentState ->
+            currentState.copy(
+                messageList = messages
+            )
+        }
+        goToNext()
+    }
+
 }
