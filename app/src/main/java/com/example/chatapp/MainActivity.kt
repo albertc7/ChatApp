@@ -45,17 +45,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppTheme{
-                Scaffold(
-                    topBar = { TopAppBar() },
-                    modifier = Modifier
-                    //.statusBarsPadding()
-                    .navigationBarsPadding()
-                    .fillMaxSize()) { innerPadding ->
-                    ChatScreen2(
-                        ChatViewModel(exampleQuiz),
-                        contentPadding = innerPadding
-                    )
-                }
+//                Scaffold(
+//                    topBar = { TopAppBar() },
+//                    modifier = Modifier
+//                    //.statusBarsPadding()
+//                    .navigationBarsPadding()
+//                    .fillMaxSize()) { innerPadding ->
+//                    ChatScreen2(
+//                        ChatViewModel(exampleQuiz),
+//                        contentPadding = innerPadding
+//                    )
+//                }
+                QuizApp()
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.chatapp
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -71,13 +73,13 @@ enum class QuizScreen(@StringRes val title: Int) {
 
 @Composable
 fun QuizApp(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ){
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
     val currentScreen = QuizScreen.valueOf(
-        backStackEntry?.destination?.route ?: QuizScreen.Start.name
+        backStackEntry?.destination?.route ?: QuizScreen.Quiz01.name
     )
     val chatViewModel = ChatViewModel(exampleQuiz)
 
@@ -88,17 +90,21 @@ fun QuizApp(
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
             )
-        }
+        },
+        modifier = Modifier
+            //.statusBarsPadding()
+            .navigationBarsPadding()
+            .fillMaxSize()
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = QuizScreen.Start.name,
+            startDestination = QuizScreen.Quiz01.name,
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+//                .fillMaxSize()
+//                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
-            composable(route = QuizScreen.Start.name) {
+            composable(route = QuizScreen.Quiz01.name) {
                 QuizSelection(
                     onQuizSelection = {
                         navController.navigate(QuizScreen.Quiz01.name)
@@ -109,12 +115,15 @@ fun QuizApp(
                 )
             }
 
-            composable(route = QuizScreen.Quiz01.name) {
-                ChatScreen2(chatViewModel)
-            }
+//            composable(route = QuizScreen.Quiz01.name) {
+//                ChatScreen2(chatViewModel = ChatViewModel(exampleQuiz), contentPadding = innerPadding)
+//                Log.d("ChatScreen", "Buildou ChatScreen")
+//            }
 
 
         }
+
+        //ChatScreen2(chatViewModel = chatViewModel, contentPadding = innerPadding)
     }
 
 }
